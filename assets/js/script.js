@@ -47,6 +47,28 @@ var saveTasks = function() {
   localStorage.setItem("tasks", JSON.stringify(tasks));
 };
 
+var auditTask = function(taskEl) {
+  // get date from task element
+  var date = $(taskEl).find("span").text().trim();
+  // ensure it worked
+ 
+  // convert to moment object at 5:00pm
+  var time = moment(date, "L").set("hour", 17);
+
+  console.log(time);
+  
+  // remove any old classes from element
+  $(taskEl).removeClass("list-group-item-warning list-group-item-danger");
+
+  // apply new class if task is near/over due date
+  if (moment().isAfter(time)) {
+    $(taskEl).addClass("list-group-item-danger");
+  }
+  else if (Math.abs(moment().diff(time, "days")) <= 2)  {
+    $(taskEl).addClass("list-group-item-warning");
+  }
+};
+
 // enable draggable/sortable feature on list-group elements
 $(".card .list-group").sortable({
   // enable dragging across lists
@@ -115,6 +137,11 @@ $("#trash").droppable({
   }
 });
 
+// add datepicker to modal's date field
+$("#modalDueDate").datepicker({
+  minDate: 1
+});
+
 // modal was triggered
 $("#task-form-modal").on("show.bs.modal", function() {
   // clear values
@@ -147,11 +174,6 @@ $("#task-form-modal .btn-primary").click(function() {
 
     saveTasks();
   }
-});
-
-// add datepicker to modal's date field
-$("#modalDueDate").datepicker({
-  minDate: 1
 });
 
 // task text was clicked
@@ -225,26 +247,6 @@ $(".list-group").on("click", "span", function() {
   // automatically focus on new element
   dateInput.trigger("focus");
 });
-
-var auditTask = function(taskEl) {
-   // get date from task element
-   var date = $(taskEl).find("span").text().trim();
-   // ensure it worked
-  
-   // convert to moment object at 5:00pm
-   var time = moment(date, "L").set("hour", 17);
-   
-   // remove any old classes from element
-   $(taskEl).removeClass("list-group-item-warning list-group-item-danger");
-
-   // apply new class if task is near/over due date
-   if (moment().isAfter(time)) {
-     $(taskEl).addClass("list-group-item-danger");
-   }
-   else if (Math.abs(moment().diff(time, "days")) <= 2)  {
-     $(taskEl).addClass("list-group-item-warning");
-   }
-};
 
 // value of due date was changed
 $(".list-group").on("change", "input[type='text']", function() {
